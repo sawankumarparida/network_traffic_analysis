@@ -22,3 +22,14 @@ traffic_data <- data.frame(
 )
 
 head(traffic_data)
+
+install.packages("ggplot2")
+library(ggplot2)
+
+options(repr.plot.width=10, repr.plot.height=6)
+
+ggplot(traffic_data, aes(x = timestamp, y = bytes_transferred)) +
+  geom_line() +
+  labs(title = "Network Traffic Over Time",
+       x = "Timestamp",
+       y = "Bytes Transferred")
