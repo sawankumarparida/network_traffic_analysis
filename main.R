@@ -22,6 +22,8 @@ traffic_data <- data.frame(
 )
 
 head(traffic_data)
+ 
+# Visualize the traffic data
 
 install.packages("ggplot2")
 library(ggplot2)
