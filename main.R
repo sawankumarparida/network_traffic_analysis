@@ -1,12 +1,12 @@
 set.seed(123)
 num_records <- 1000
 
-timestamps <- seq.POSIXt(from = as.POSIXct("2024-06-03 00:00:00"), 
+timestamps <- seq.POSIXt(from = as.POSIXct("2024-06-03 00:00:00"),  # nolint
                          by = "hour", length.out = num_records)
 
 generate_ipv4 <- function(n) {
-  paste(sample(0:255, n, replace = TRUE), sample(0:255, n, replace = TRUE), 
-        sample(0:255, n, replace = TRUE), sample(0:255, n, replace = TRUE), sep = ".")
+  paste(sample(0:255, n, replace = TRUE), sample(0:255, n, replace = TRUE),  # nolint
+        sample(0:255, n, replace = TRUE), sample(0:255, n, replace = TRUE), sep = ".") # nolint
 }
 
 source_ips <- generate_ipv4(num_records)
@@ -22,13 +22,13 @@ traffic_data <- data.frame(
 )
 
 head(traffic_data)
- 
+  # nolint
 # Visualize the traffic data
 
 install.packages("ggplot2")
 library(ggplot2)
 
-options(repr.plot.width=10, repr.plot.height=6)
+options(repr.plot.width=10, repr.plot.height=6) # nolint
 
 ggplot(traffic_data, aes(x = timestamp, y = bytes_transferred)) +
   geom_line() +
