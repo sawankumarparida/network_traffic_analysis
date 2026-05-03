@@ -56,3 +56,30 @@ ggplot(top_talkers, aes(x = reorder(source_ip, bytes_transferred),
         axis.title.y = element_text(size = 12, face = "bold"),
         legend.position = "none") +
   geom_text(aes(label = scales::comma(bytes_transferred)), vjust = -0.3, size = 3.5) # nolint
+
+# Destination Analysis
+
+destination_summary <- aggregate(bytes_transferred ~ destination_ip, data = traffic_data,
+                                 FUN = sum)
+destination_summary <- destination_summary[order(destination_summary$bytes_transferred,
+                                                 decreasing = TRUE), ]
+top_destinations <- head(destination_summary, 10)
+
+ggplot(top_destinations, aes(x = bytes_transferred, y = reorder(destination_ip, 
+                                                                bytes_transferred))) +
+  geom_segment(aes(x = 0, xend = bytes_transferred, y = reorder(destination_ip, 
+                                                                bytes_transferred), 
+                   yend = reorder(destination_ip, bytes_transferred)),
+               color = "grey") +
+  geom_point(aes(color = bytes_transferred), size = 4) +
+  scale_color_gradient(low = "lightgreen", high = "darkgreen") +
+  labs(title = "Top 10 Network Destinations",
+       x = "Bytes Transferred",
+       y = "Destination IP Address") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+        axis.title.x = element_text(size = 12, face = "bold"),
+        axis.title.y = element_text(size = 12, face = "bold"),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none") +
+  geom_text(aes(label = scales::comma(bytes_transferred)), hjust = -0.1, size = 3.5) # nolint
