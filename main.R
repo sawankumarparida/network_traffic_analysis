@@ -110,3 +110,45 @@ ggplot(top_destinations, aes(x = bytes_transferred, y = reorder(
     legend.position = "none"
   ) +
   geom_text(aes(label = scales::comma(bytes_transferred)), hjust = -0.1, size = 3.5) # nolint
+
+# Geographical Visualization
+
+install.packages("leaflet")
+library(leaflet) # nolint
+
+set.seed(123)
+num_records <- nrow(traffic_data)
+traffic_data$source_latitude <- runif(n = num_records, min = -90, max = 90)
+traffic_data$source_longitude <- runif(n = num_records, min = -180, max = 180)
+traffic_data$destination_latitude <- runif(n = num_records, min = -90, max = 90)
+traffic_data$destination_longitude <- runif(n = num_records, min = -180, max = 180) # nolint
+
+leaflet(data = traffic_data) %>% # nolint
+  addTiles() %>% # nolint
+  addCircleMarkers(~source_longitude, ~source_latitude,
+    radius = 5,
+    color = "blue", fillOpacity = 0.5,
+    label = ~ paste("Source:", source_ip)
+  ) %>% # nolint
+  addCircleMarkers(~destination_longitude, ~destination_latitude,
+    radius = 5,
+    color = "red", fillOpacity = 0.5, label = ~ paste(
+      "Destination:",
+      destination_ip
+    )
+  ) %>% # nolint
+  addPolylines(~ c(source_longitude, destination_longitude), ~ c(
+    source_latitude,
+    destination_latitude
+  ),
+  color = "green", weight = 2, opacity = 0.7
+  ) %>% # nolint
+  addLegend("bottomright",
+    colors = c("blue", "red", "green"),
+    labels = c("Source IP", "Destination IP", "Traffic Path"),
+    title = "Legend"
+  ) %>% # nolint
+  setView(
+    lng = mean(traffic_data$source_longitude),
+    lat = mean(traffic_data$source_latitude), zoom = 1
+  )
