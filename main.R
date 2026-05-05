@@ -114,7 +114,7 @@ ggplot(top_destinations, aes(x = bytes_transferred, y = reorder(
 # Geographical Visualization
 
 install.packages("leaflet")
-library(leaflet) # nolint
+library(leaflet)
 
 set.seed(123)
 num_records <- nrow(traffic_data)
