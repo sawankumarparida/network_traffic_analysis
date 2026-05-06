@@ -2,15 +2,15 @@ set.seed(123)
 num_records <- 1000
 
 timestamps <- seq.POSIXt(
-  from = as.POSIXct("2024-06-03 00:00:00"), # nolint
+  from = as.POSIXct("2024-06-03 00:00:00"), 
   by = "hour", length.out = num_records
 )
 
 generate_ipv4 <- function(n) {
-  paste(sample(0:255, n, replace = TRUE), sample(0:255, n, replace = TRUE), # nolint
+  paste(sample(0:255, n, replace = TRUE), sample(0:255, n, replace = TRUE), 
     sample(0:255, n, replace = TRUE), sample(0:255, n, replace = TRUE),
     sep = "."
-  ) # nolint
+  ) 
 }
 
 source_ips <- generate_ipv4(num_records)
@@ -26,13 +26,13 @@ traffic_data <- data.frame(
 )
 
 head(traffic_data)
-# nolint
+
 # Visualize the traffic data
 
 install.packages("ggplot2")
 library(ggplot2)
 
-options(repr.plot.width = 10, repr.plot.height = 6) # nolint
+options(repr.plot.width = 10, repr.plot.height = 6) 
 
 ggplot(traffic_data, aes(x = timestamp, y = bytes_transferred)) +
   geom_line() +
@@ -67,7 +67,7 @@ ggplot(top_talkers, aes(
     axis.title.y = element_text(size = 12, face = "bold"),
     legend.position = "none"
   ) +
-  geom_text(aes(label = scales::comma(bytes_transferred)), vjust = -0.3, size = 3.5) # nolint
+  geom_text(aes(label = scales::comma(bytes_transferred)), vjust = -0.3, size = 3.5) 
 
 # Destination Analysis
 
@@ -75,8 +75,8 @@ destination_summary <- aggregate(bytes_transferred ~ destination_ip,
   data = traffic_data,
   FUN = sum
 )
-destination_summary <- destination_summary[order(destination_summary$bytes_transferred, # nolint
-  decreasing = TRUE # nolint
+destination_summary <- destination_summary[order(destination_summary$bytes_transferred, 
+  decreasing = TRUE 
 ), ]
 top_destinations <- head(destination_summary, 10)
 
@@ -109,7 +109,7 @@ ggplot(top_destinations, aes(x = bytes_transferred, y = reorder(
     axis.text.y = element_text(size = 10),
     legend.position = "none"
   ) +
-  geom_text(aes(label = scales::comma(bytes_transferred)), hjust = -0.1, size = 3.5) # nolint
+  geom_text(aes(label = scales::comma(bytes_transferred)), hjust = -0.1, size = 3.5) 
 
 # Geographical Visualization
 
@@ -121,33 +121,33 @@ num_records <- nrow(traffic_data)
 traffic_data$source_latitude <- runif(n = num_records, min = -90, max = 90)
 traffic_data$source_longitude <- runif(n = num_records, min = -180, max = 180)
 traffic_data$destination_latitude <- runif(n = num_records, min = -90, max = 90)
-traffic_data$destination_longitude <- runif(n = num_records, min = -180, max = 180) # nolint
+traffic_data$destination_longitude <- runif(n = num_records, min = -180, max = 180) 
 
-leaflet(data = traffic_data) %>% # nolint
-  addTiles() %>% # nolint
+leaflet(data = traffic_data) %>% 
+  addTiles() %>% 
   addCircleMarkers(~source_longitude, ~source_latitude,
     radius = 5,
     color = "blue", fillOpacity = 0.5,
     label = ~ paste("Source:", source_ip)
-  ) %>% # nolint
+  ) %>% 
   addCircleMarkers(~destination_longitude, ~destination_latitude,
     radius = 5,
     color = "red", fillOpacity = 0.5, label = ~ paste(
       "Destination:",
       destination_ip
     )
-  ) %>% # nolint
+  ) %>% 
   addPolylines(~ c(source_longitude, destination_longitude), ~ c(
     source_latitude,
     destination_latitude
   ),
   color = "green", weight = 2, opacity = 0.7
-  ) %>% # nolint
+  ) %>% 
   addLegend("bottomright",
     colors = c("blue", "red", "green"),
     labels = c("Source IP", "Destination IP", "Traffic Path"),
     title = "Legend"
-  ) %>% # nolint
+  ) %>% 
   setView(
     lng = mean(traffic_data$source_longitude),
     lat = mean(traffic_data$source_latitude), zoom = 1
