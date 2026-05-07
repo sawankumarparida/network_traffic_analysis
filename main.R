@@ -111,44 +111,59 @@ ggplot(top_destinations, aes(x = bytes_transferred, y = reorder(
   ) +
   geom_text(aes(label = scales::comma(bytes_transferred)), hjust = -0.1, size = 3.5) 
 
-# Geographical Visualization
-
-install.packages("leaflet")
+# 1. Load Libraries
+# Make sure you've run: sudo apt install r-cran-leaflet r-cran-sf 
+# in your Ubuntu terminal first!
 library(leaflet)
+library(dplyr)
 
+# 2. Setup Data
 set.seed(123)
-num_records <- nrow(traffic_data)
-traffic_data$source_latitude <- runif(n = num_records, min = -90, max = 90)
-traffic_data$source_longitude <- runif(n = num_records, min = -180, max = 180)
-traffic_data$destination_latitude <- runif(n = num_records, min = -90, max = 90)
-traffic_data$destination_longitude <- runif(n = num_records, min = -180, max = 180) 
+# Keep num_records low (e.g., 50-100) to avoid the "hairball" look 
+# unless you use very low opacity.
+num_records <- 100 
 
-leaflet(data = traffic_data) %>% 
-  addTiles() %>% 
-  addCircleMarkers(~source_longitude, ~source_latitude,
-    radius = 5,
-    color = "blue", fillOpacity = 0.5,
-    label = ~ paste("Source:", source_ip)
-  ) %>% 
-  addCircleMarkers(~destination_longitude, ~destination_latitude,
-    radius = 5,
-    color = "red", fillOpacity = 0.5, label = ~ paste(
-      "Destination:",
-      destination_ip
-    )
-  ) %>% 
-  addPolylines(~ c(source_longitude, destination_longitude), ~ c(
-    source_latitude,
-    destination_latitude
-  ),
-  color = "green", weight = 2, opacity = 0.7
-  ) %>% 
+# Simulated traffic data
+traffic_data <- data.frame(
+  source_ip = paste0("192.168.1.", sample(1:254, num_records, replace = TRUE)),
+  destination_ip = paste0("10.0.0.", sample(1:254, num_records, replace = TRUE)),
+  source_latitude = runif(n = num_records, min = -40, max = 60), # Narrowed for better view
+  source_longitude = runif(n = num_records, min = -120, max = 140),
+  destination_latitude = runif(n = num_records, min = -40, max = 60),
+  destination_longitude = runif(n = num_records, min = -120, max = 140)
+)
+
+# 3. Initialize Map
+map <- leaflet(data = traffic_data) %>% 
+  addTiles() %>%
   addLegend("bottomright",
-    colors = c("blue", "red", "green"),
-    labels = c("Source IP", "Destination IP", "Traffic Path"),
-    title = "Legend"
-  ) %>% 
-  setView(
-    lng = mean(traffic_data$source_longitude),
-    lat = mean(traffic_data$source_latitude), zoom = 1
+            colors = c("blue", "red", "green"),
+            labels = c("Source IP", "Destination IP", "Traffic Path"),
+            title = "Network Traffic")
+
+# 4. Add Individual Traffic Paths (The Fix)
+# We loop through the rows to draw distinct lines for each connection
+for(i in 1:nrow(traffic_data)) {
+  map <- map %>% addPolylines(
+    lng = c(traffic_data$source_longitude[i], traffic_data$destination_longitude[i]),
+    lat = c(traffic_data$source_latitude[i], traffic_data$destination_latitude[i]),
+    color = "green", 
+    weight = 1,      # Thinner lines
+    opacity = 0.3    # Lower opacity lets the map show through
   )
+}
+
+# 5. Add Markers and Final View
+map <- map %>% 
+  addCircleMarkers(~source_longitude, ~source_latitude,
+                   radius = 4, color = "blue", fillOpacity = 0.6,
+                   label = ~paste("Source:", source_ip),
+                   group = "Sources") %>% 
+  addCircleMarkers(~destination_longitude, ~destination_latitude,
+                   radius = 4, color = "red", fillOpacity = 0.6,
+                   label = ~paste("Destination:", destination_ip),
+                   group = "Destinations") %>%
+  setView(lng = 0, lat = 20, zoom = 2)
+
+# 6. Display Map
+map
