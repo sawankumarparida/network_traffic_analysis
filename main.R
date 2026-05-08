@@ -44,9 +44,9 @@ ggplot(traffic_data, aes(x = timestamp, y = bytes_transferred)) +
 
 # Top Talkers Analysis
 
-top_talkers <- aggregate(bytes_transferred ~ source_ip, data = traffic_data, FUN = sum) # nolint
-top_talkers <- top_talkers[order(top_talkers$bytes_transferred, decreasing = TRUE), ] # nolint
-top_talkers <- head(top_talkers, 10) # Selecting top 10 talkers for visualization # nolint
+top_talkers <- aggregate(bytes_transferred ~ source_ip, data = traffic_data, FUN = sum) 
+top_talkers <- top_talkers[order(top_talkers$bytes_transferred, decreasing = TRUE), ] 
+top_talkers <- head(top_talkers, 10) # Selecting top 10 talkers for visualization 
 
 ggplot(top_talkers, aes(
   x = reorder(source_ip, bytes_transferred),
